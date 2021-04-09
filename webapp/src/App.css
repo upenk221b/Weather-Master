@@ -1,0 +1,23 @@
+.App {
+  text-align: center;
+}
+
+.logo {
+  height: 28px;
+  width: 28px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.site-layout {
+  background: #fff;
+
+}
+.site-layout-background {
+  background: #fff;
+  text-align: left;
+  text-decoration-color: #fff;
+}
+  [data-theme="dark"] .site-layout .site-layout-background {
+    background: #141414;
+  }
