@@ -1,38 +1,41 @@
 import React, { Component } from "react";
 import {withRouter} from 'react-router-dom';
+import { connect } from 'react-redux';
 import SideNavbar from './SideNavbar';
 import { Layout, PageHeader } from 'antd';
 import {  Card , Button , Typography , Row , Col} from 'antd';
-import axios from 'axios';
+// import axios from 'axios';
 const { Content, Footer } = Layout;
 const {Text} = Typography;
 
+
 class User extends Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            isLoggedin : false,
-            user : null
-        }
-    }
+    // constructor(props){
+    //     super(props)
+    //     this.state = {
+    //         isLoggedin : false,
+    //         user : null
+    //     }
+    // }
      componentDidMount(){
         //set state of loggedin depending on local storage
-      if(localStorage.getItem('team_id') && localStorage.getItem('user_id')){
-        this.setState({isLoggedin : true})
-      }
+    //   if(localStorage.getItem('team_id') && localStorage.getItem('user_id')){
+    //     this.setState({isLoggedin : true})
+    //   }
 
-      //get user info if logged in
-      try{
-        axios.get(`/api/database/user?user_id=${localStorage.getItem('user_id')}&team_id=${localStorage.getItem('team_id')}`).then(res=>{
-            console.log(res.data);
-            this.setState({user : res.data});
-        })
-      }catch(e){
-        console.log(e)
-      }
+    //   //get user info if logged in
+    //   try{
+    //     axios.get(`/api/database/user?user_id=${localStorage.getItem('user_id')}&team_id=${localStorage.getItem('team_id')}`).then(res=>{
+    //         console.log(res.data);
+    //         this.setState({user : res.data});
+    //     })
+    //   }catch(e){
+    //     console.log(e)
+    //   }
     }
     render(){
-        const user = this.state.user
+        const {user, isLoggedin} = this.props.user
+        console.log(user)
         if(user){
             var city = user.default_city ? user.default_city : "Not set";
         }
@@ -49,7 +52,7 @@ class User extends Component{
                         <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
                         <Row gutter={[16, 16]}>
                                 <Col span={12}  >
-                                        {!this.state.isLoggedin ? 
+                                        {!isLoggedin ? 
                                         <Card
                                             style={{ width: "100%" }}
                                             title="Not Logged in"
@@ -96,4 +99,7 @@ class User extends Component{
     }
 }
 
-export default withRouter(User);
+const mapStateToProps= (state) =>({
+    user : state.user
+});
+export default withRouter(connect(mapStateToProps,{})(User));

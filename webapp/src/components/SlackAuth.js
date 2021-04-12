@@ -1,5 +1,8 @@
 import queryString from "query-string";
 import React , {Component} from 'react';
+//redux
+import { connect } from 'react-redux';
+import { install } from '../actions/userActions';
 import { withRouter } from 'react-router-dom';
 import { message } from 'antd';
 import Dashboard from "./Dashboard";
@@ -8,15 +11,13 @@ class SlackAuth extends Component{
     componentDidMount(){
         //stotre user_id and team_id in local storage if not already
         try{
-            console.log("GETTING CODE");
+            // console.log("GETTING CODE");
             let team_id = queryString.parse(this.props.location.search).team_id;
             let user_id = queryString.parse(this.props.location.search).user_id;
 
-            console.log("Teamid: ", team_id , "USRRRRr" , user_id);
 
-            localStorage.setItem('user_id', user_id);
-            localStorage.setItem('team_id', team_id);
-            console.log("LOCAL STORAGE SET");
+            // //call INSTALL ACTION add get user in redux store
+            this.props.install(user_id , team_id);
             message.success("You are logged in!!")
 
         }catch(e){
@@ -32,5 +33,7 @@ class SlackAuth extends Component{
         )
     }
 }
-
-export default withRouter(SlackAuth);
+const mapStateToProps= (state) =>({
+    user : state.user
+});
+export default withRouter(connect(mapStateToProps,{install})(SlackAuth));

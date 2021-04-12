@@ -1,46 +1,57 @@
 import React, { Component } from "react";
 import {withRouter} from 'react-router-dom';
+//redux
+import { connect } from 'react-redux';
+import { uninstall} from '../actions/userActions';
+
 import SideNavbar from './SideNavbar';
-import { Layout, PageHeader, Row , Col, message} from 'antd';
+import { Layout, PageHeader, Row , Col} from 'antd';
 import {  Card , Button , Typography , Modal} from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 // import { Table, Input, Button, Space } from 'antd';
 import '../App.css';
 import 'antd/dist/antd.css';
-import axios from "axios";
+// import axios from "axios";
 const { Content, Footer } = Layout;
 const {Text} = Typography;
+
+
+
 class Slack extends Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            isLoggedin : false
-        }
-    }
+    // constructor(props){
+    //     super(props)
+    //     this.state = {
+    //         isLoggedin : false
+    //     }
+    // }
     componentDidMount(){
         //set state of loggedin depending on local storage
-      if(localStorage.getItem('team_id') && localStorage.getItem('user_id')){
-        this.setState({isLoggedin : true})
-      }
+    //   if(localStorage.getItem('team_id') && localStorage.getItem('user_id')){
+    //     this.setState({isLoggedin : true})
+    //   }
     }
     uninstallHandler = async (e)=>{
         //api call to delete user from database and uninstall app
         console.log("uninstalling")
+        //CALL UNINSTALL ACTION here and update redux store
+        const {user} = this.props.user
         try {
-            let response = await axios.post(`/slack/uninstall?user_id=${localStorage.getItem('user_id')}&team_id=${localStorage.getItem('team_id')}`)
-            console.log(response);
-            console.log(response.data)
-            if(response && response.data){
-                if(response.data.success){
-                    localStorage.removeItem("team_id");
-                    localStorage.removeItem("user_id");
-                    console.log("REMOVED LOCAL STORAGE")
-                    // window.location.reload()
-                    this.setState({isLoggedin : false})
-                    message.success("Uninstall successful!!")
-                }
-            }
+            this.props.uninstall(user.id , user.team_id)
+
+            // let response = await axios.post(`/slack/uninstall?user_id=${localStorage.getItem('user_id')}&team_id=${localStorage.getItem('team_id')}`)
+            // console.log(response);
+            // console.log(response.data)
+            // if(response && response.data){
+            //     if(response.data.success){
+            //         localStorage.removeItem("team_id");
+            //         localStorage.removeItem("user_id");
+            //         console.log("REMOVED LOCAL STORAGE")
+            //         // window.location.reload()
+            //         this.setState({isLoggedin : false})
+            //         message.success("Uninstall successful!!")
+            //     }
+            // }
         } catch (error) {
             console.log(error)
         }
@@ -59,10 +70,11 @@ class Slack extends Component{
         });
       }
     gotoSlackApp = ()=>{
-        let slackURL = "https://app.slack.com/client/"+localStorage.getItem('team_id');
+        let slackURL = `https://app.slack.com/client/${this.props.user.user.team_id}`
         window.open(slackURL)
     }
     render(){
+        const {isLoggedin} = this.props.user
         return(
             <React.Fragment>
                 <Layout style={{ minHeight: '100vh' }}>
@@ -76,7 +88,7 @@ class Slack extends Component{
                         <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
                             <Row gutter={[16, 16]}>
                                 <Col span={12}  >
-                                        {!this.state.isLoggedin ? 
+                                        {!isLoggedin ? 
                                         <Card
                                             style={{ width: "100%" }}
                                             title="Add to Slack"
@@ -108,7 +120,7 @@ class Slack extends Component{
                                     }
                                 </Col>
                                 
-                                {this.state.isLoggedin &&
+                                {isLoggedin &&
                                 <Col span={12}>
                                 <Card
                                     style={{ width: "100%" }}
@@ -135,5 +147,7 @@ class Slack extends Component{
         )
     }
 }
-
-export default withRouter(Slack);
+const mapStateToProps= (state) =>({
+    user : state.user
+});
+export default withRouter(connect(mapStateToProps,{uninstall})(Slack));
